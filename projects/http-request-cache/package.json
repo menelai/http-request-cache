@@ -17,7 +17,7 @@
     "http",
     "rxjs"
   ],
-  "author": "Kovalenko",
+  "author": "kovalenko",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/menelai/http-request-cache/issues"
