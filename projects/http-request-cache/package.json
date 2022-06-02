@@ -1,0 +1,25 @@
+{
+  "name": "@kovalenko/http-request-cache",
+  "version": "0.0.0-semantically-released",
+  "peerDependencies": {
+    "rxjs": ">=7"
+  },
+  "dependencies": {
+    "tslib": "^2.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/menelai/http-request-cache.git"
+  },
+  "keywords": [
+    "angular",
+    "cache",
+    "http",
+    "rxjs"
+  ],
+  "author": "Kovalenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/menelai/http-request-cache/issues"
+  }
+}
