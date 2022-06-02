@@ -118,4 +118,4 @@ export class DataService {
 
 ## License
 
-MIT
+[MIT](LICENSE)
