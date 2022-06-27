@@ -22,6 +22,7 @@ npm install @kovalenko/http-request-cache
 interface HttpCacheOptions {
   refCount?: boolean; // If `refCount` is true, the source will be unsubscribed from once the reference count drops to zero
   windowTime?: number; // Maximum time length of the replay buffer in milliseconds
+  ttl?: number; // cache time to live before it will be refreshed. Unlike refreshOn: interval(1000), ttl will not refresh automatically
   storage?: HttpCacheStorage; // if none specified, the default cache object will be used
   refreshOn?: Observable<unknown> | Subject<unknown> | BehaviorSubject<unknown>; // refresh trigger
 }
@@ -101,6 +102,76 @@ export class DataService {
   }))
   list(id: string): Observable<any> {
     return this.http.get('assets/angular.json');
+  }
+}
+```
+
+### TTL
+
+When someone subscribes list() method after TTL period, every subscription is being refreshed
+
+```typescript
+@Injectable()
+export class DataService {
+  constructor(private http: HttpClient) { }
+
+  @HttpRequestCache(() => ({
+    ttl: 5000
+  }))
+  list(): Observable<any> {
+    return this.http.get('assets/angular.json');
+  }
+}
+
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
+})
+export class AppComponent implements OnInit {
+
+  constructor(
+    private http: HttpClient,
+    private dataService: DataService
+  ) { }
+
+  ngOnInit(): void {
+    this.dataService.list().subscribe(g => {
+      console.log('1', g);
+    });
+    
+    // outputs: 
+    // 1 {...}
+
+    setTimeout(() => {
+      this.dataService.list().subscribe(g => {
+        console.log('2', g);
+      });
+    }, 1000);
+
+    // outputs: 
+    // 2 {...}
+
+    setTimeout(() => {
+      this.dataService.list().subscribe(g => {
+        console.log('3', g);
+      });
+    }, 6000);
+
+    // outputs: 
+    // 1 {...}
+    // 2 {...}
+    // 3 {...}
+
+    setTimeout(() => {
+      this.dataService.list().subscribe(g => {
+        console.log('4', g);
+      });
+    }, 8000);
+
+    // outputs: 
+    // 4 {...}
   }
 }
 ```
