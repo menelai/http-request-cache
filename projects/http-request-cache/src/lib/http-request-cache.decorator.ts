@@ -35,6 +35,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
           shareReplay({
             bufferSize: 1,
             refCount: options?.refCount ?? false,
+            windowTime: options?.windowTime ?? Infinity,
           }),
         );
         storage.setItem(key, observable);

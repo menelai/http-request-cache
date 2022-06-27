@@ -20,6 +20,8 @@ npm install @kovalenko/http-request-cache
 
 ```typescript
 interface HttpCacheOptions {
+  refCount?: boolean; // If `refCount` is true, the source will be unsubscribed from once the reference count drops to zero
+  windowTime?: number; // Maximum time length of the replay buffer in milliseconds
   storage?: HttpCacheStorage; // if none specified, the default cache object will be used
   refreshOn?: Observable<unknown> | Subject<unknown> | BehaviorSubject<unknown>; // refresh trigger
 }
