@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/menelai/http-request-cache/compare/v1.1.0...v1.2.0) (2022-06-27)
+
+
+### Features
+
+* TTL option for cache ([#25](https://github.com/menelai/http-request-cache/issues/25)) ([7163fc9](https://github.com/menelai/http-request-cache/commit/7163fc9da90ba3c2d07d675330adca959884e08c))
+
 # [1.1.0](https://github.com/menelai/http-request-cache/compare/v1.0.0...v1.1.0) (2022-06-27)
 
 
