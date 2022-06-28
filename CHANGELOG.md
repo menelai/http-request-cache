@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/menelai/http-request-cache/compare/v1.2.1...v1.2.2) (2022-06-28)
+
+
+### Bug Fixes
+
+* remove unnecessary console.log ([ae2333f](https://github.com/menelai/http-request-cache/commit/ae2333f3cfbe4f4a47d0d640b9034616f9de4bd9))
+
 ## [1.2.1](https://github.com/menelai/http-request-cache/compare/v1.2.0...v1.2.1) (2022-06-28)
 
 
