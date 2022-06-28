@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {JojService} from './joj.service';
 import {HttpClient} from '@angular/common/http';
-import {shareReplay} from 'rxjs/operators';
+import {shareReplay, take} from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -16,9 +16,23 @@ export class AppComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.jojService.get().subscribe(g => {
+    this.jojService.get().pipe(
+      take(1)
+    ).subscribe(g => {
       console.log('1', g);
     });
+
+    this.jojService.get1().pipe(
+      take(1)
+    ).subscribe(g => {
+      console.log('get1', g);
+    });
+
+    setTimeout(() => {
+      this.jojService.get1().subscribe(g => {
+        console.log('get2', g);
+      });
+    }, 1000);
 
     setTimeout(() => {
       this.jojService.get().subscribe(g => {
@@ -33,7 +47,9 @@ export class AppComponent implements OnInit {
     }, 6000);
 
     setTimeout(() => {
-      this.jojService.get().subscribe(g => {
+      this.jojService.get().pipe(
+        take(1)
+      ).subscribe(g => {
         console.log('4', g);
       });
     }, 8000);

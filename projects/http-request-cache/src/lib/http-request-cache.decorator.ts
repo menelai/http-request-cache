@@ -1,5 +1,5 @@
 import {HttpCacheOptions} from './http-cache-options';
-import {filter, merge, NEVER, Observable, Subject, tap} from 'rxjs';
+import {filter, finalize, merge, NEVER, Observable, Subject, tap} from 'rxjs';
 import {shareReplay, startWith, switchMap} from 'rxjs/operators';
 import {DefaultStorage} from './default-storage';
 import {RequestTimes} from './request-times';
@@ -14,6 +14,8 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
 
     const cacheKeyPrefix = `${target.constructor.name}_${methodName}`;
     const originalMethod = descriptor.value;
+    const working: Record<string, boolean> = {};
+    let subscribers = 0;
 
     descriptor.value = function(...args: any[]): Observable<any> {
       const options = optionsHandler?.call(this as T, this as T, ...args);
@@ -30,8 +32,6 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
 
       const key = `${cacheKeyPrefix}_${JSON.stringify(args)}`;
 
-      (target as any)._____working_____ ??= {};
-
       let ttl: {requestTime: number, subject: Subject<void>} = undefined as any;
 
       if (options?.ttl) {
@@ -43,7 +43,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
             subject: new Subject(),
           };
         } else if (ttl.requestTime + options.ttl <= Date.now()) {
-          (target as any)._____working_____[key] = true;
+          working[key] = true;
           ttl.requestTime = Date.now();
           ttl.subject.next();
         }
@@ -63,7 +63,8 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
           startWith(true),
           switchMap(() => originalMethod.apply(this, [...args])),
           tap(() => {
-            delete (target as any)._____working_____[key];
+            console.log(working);
+            delete working[key];
           }),
           shareReplay({
             bufferSize: 1,
@@ -71,11 +72,20 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
             windowTime: options?.windowTime ?? Infinity,
           }),
           filter(() => {
-            return !(target as any)._____working_____[key];
+            return !working[key];
           }),
+          finalize(() => {
+            subscribers--;
+            if (subscribers === 0 && options?.refCount) {
+              storage.deleteItem(key);
+              (target as any)._____ttl_storage_____?.deleteItem(key);
+            }
+          })
         );
         storage.setItem(key, observable);
       }
+
+      subscribers++;
 
       return observable;
     };
