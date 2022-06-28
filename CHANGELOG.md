@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/menelai/http-request-cache/compare/v1.2.0...v1.2.1) (2022-06-28)
+
+
+### Bug Fixes
+
+* remove items from store ([#25](https://github.com/menelai/http-request-cache/issues/25)) ([c4dc8e8](https://github.com/menelai/http-request-cache/commit/c4dc8e8eeb67c003355940a0991dac74a93d6da1))
+
 # [1.2.0](https://github.com/menelai/http-request-cache/compare/v1.1.0...v1.2.0) (2022-06-27)
 
 
