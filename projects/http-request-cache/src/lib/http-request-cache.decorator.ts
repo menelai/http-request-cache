@@ -63,7 +63,6 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
           startWith(true),
           switchMap(() => originalMethod.apply(this, [...args])),
           tap(() => {
-            console.log(working);
             delete working[key];
           }),
           shareReplay({
