@@ -46,7 +46,7 @@
     "cross-env": "^7.0.3",
     "eslint": "^8.18.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "ng-packagr": "^14.0.2",
     "prettier": "^2.7.1",
     "protractor": "~7.0.0",
