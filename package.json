@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "wait-on": "^6.0.1",
-    "@angular-devkit/build-angular": "^14.0.0",
+    "@angular-devkit/build-angular": "^14.0.4",
     "@angular/cli": "^14.0.4",
     "@angular/compiler-cli": "^14.0.0",
     "@semantic-release/changelog": "^6.0.1",
