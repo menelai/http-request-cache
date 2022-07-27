@@ -122,6 +122,9 @@
           "configurations": {
             "production": {
               "tsConfig": "projects/http-request-cache/tsconfig.lib.prod.json"
+            },
+            "commonjs": {
+              "tsConfig": "projects/http-request-cache/tsconfig.lib.commonjs.json"
             }
           }
         },

@@ -7,7 +7,7 @@
     "ng": "ng",
     "start": "ng serve",
     "prebuild": "rimraf dist/http-request-cache",
-    "build": "ng build http-request-cache --configuration production",
+    "build": "ng build http-request-cache --configuration commonjs",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
