@@ -1,3 +1,12 @@
+## [1.2.4](https://github.com/menelai/http-request-cache/compare/v1.2.3...v1.2.4) (2022-07-27)
+
+
+### Bug Fixes
+
+* build for node ([43727b8](https://github.com/menelai/http-request-cache/commit/43727b8917458d0f8f22b2e86ad5a9c06c85749d))
+* guthub script ([367fbd4](https://github.com/menelai/http-request-cache/commit/367fbd4396068435b928be795fb1e5cb2dcdb9a3))
+* skip lib check ([2e1a0d5](https://github.com/menelai/http-request-cache/commit/2e1a0d5fb3b390e5bce4f32a42d299296417d36f))
+
 ## [1.2.3](https://github.com/menelai/http-request-cache/compare/v1.2.2...v1.2.3) (2022-07-27)
 
 
