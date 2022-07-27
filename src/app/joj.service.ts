@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {interval, Observable} from 'rxjs';
+import {filter, interval, Observable, Subject} from 'rxjs';
 import {HttpRequestCache} from 'http-request-cache';
 
 @Injectable({
@@ -8,23 +8,18 @@ import {HttpRequestCache} from 'http-request-cache';
 })
 export class JojService {
 
+  refresh$ = new Subject<number>();
+
   constructor(
     private http: HttpClient,
   ) { }
 
-  @HttpRequestCache(() => ({
-    ttl: 4000,
-    refCount: true
+  @HttpRequestCache<JojService>((jojService, id: number) => ({
+    refreshOn: jojService.refresh$.pipe(
+      filter(r => r === id),
+    ),
   }))
-  get(): Observable<any> {
-    return this.http.get('https://jsonplaceholder.typicode.com/todos/1');
-  }
-
-  @HttpRequestCache(() => ({
-    ttl: 4000,
-    refCount: false
-  }))
-  get1(): Observable<any> {
-    return this.http.get('https://jsonplaceholder.typicode.com/todos/2');
+  get(id: number): Observable<any> {
+    return this.http.get(`https://jsonplaceholder.typicode.com/todos/${id}`);
   }
 }

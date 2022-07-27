@@ -1,6 +1,5 @@
 import {HttpCacheOptions} from './http-cache-options';
-import {filter, finalize, merge, NEVER, Observable, Subject, tap} from 'rxjs';
-import {shareReplay, startWith, switchMap} from 'rxjs/operators';
+import {filter, finalize, merge, NEVER, Observable, Subject, tap, shareReplay, startWith, switchMap} from 'rxjs';
 import {DefaultStorage} from './default-storage';
 import {RequestTimes} from './request-times';
 
@@ -53,7 +52,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
 
       const refreshOn = merge(
         options?.refreshOn ?? NEVER as Observable<unknown>,
-         ttl?.subject ?? NEVER,
+         ttl?.subject ?? NEVER as Observable<unknown>,
       );
 
       let observable = storage.getItem(key);

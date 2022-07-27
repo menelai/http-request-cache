@@ -26,6 +26,9 @@ jobs:
           cache: 'npm'
       - run: npm ci --legacy-peer-deps
       - run: npm run build
+      - run: cd projects/http-request-cache
+      - run: npx tsc
+      - run: node replace.js
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
