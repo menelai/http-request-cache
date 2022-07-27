@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/menelai/http-request-cache/compare/v1.2.2...v1.2.3) (2022-07-27)
+
+
+### Bug Fixes
+
+* build commonjs ([9cf8f32](https://github.com/menelai/http-request-cache/commit/9cf8f3244d38aea807e9106492222e353ce95307))
+
 ## [1.2.2](https://github.com/menelai/http-request-cache/compare/v1.2.1...v1.2.2) (2022-06-28)
 
 
