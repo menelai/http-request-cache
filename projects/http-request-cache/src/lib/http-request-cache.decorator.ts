@@ -67,7 +67,6 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
           shareReplay({
             bufferSize: 1,
             refCount: options?.refCount ?? false,
-            windowTime: options?.windowTime ?? Infinity,
           }),
           filter(() => {
             return !working[key];
@@ -81,6 +80,16 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
           })
         );
         storage.setItem(key, observable);
+
+        if (options?.windowTime) {
+          setTimeout(
+            () => {
+              storage.deleteItem(key);
+              (target as any)._____ttl_storage_____?.deleteItem(key);
+            },
+            options.windowTime,
+          );
+        }
       }
 
       subscribers++;
