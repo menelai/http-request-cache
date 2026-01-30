@@ -1,3 +1,10 @@
+## [1.2.5](https://github.com/menelai/http-request-cache/compare/v1.2.4...v1.2.5) (2026-01-30)
+
+
+### Bug Fixes
+
+* windowTime clears storage ([4fce62d](https://github.com/menelai/http-request-cache/commit/4fce62d5cde72e7d7b745ca18265d3382c31302a))
+
 ## [1.2.4](https://github.com/menelai/http-request-cache/compare/v1.2.3...v1.2.4) (2022-07-27)
 
 
