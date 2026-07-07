@@ -81,7 +81,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
             resetOnRefCountZero: !options?.refCount
               ? false
               : options.refCountDelay != null
-                ? () => timer(options.refCountDelay)
+                ? () => timer(options.refCountDelay!)
                 : true,
           }),
           filter(() => !working[key]),
