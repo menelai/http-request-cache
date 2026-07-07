@@ -1,41 +1,25 @@
-import { HttpCacheOptions } from './http-cache-options';
+import {HttpCacheOptions} from './http-cache-options';
 import {
-  filter,
-  finalize,
-  merge,
-  NEVER,
-  Observable,
-  Subject,
-  tap,
-  shareReplay,
-  startWith,
-  switchMap, share, ReplaySubject, timer,
+  filter, finalize, merge, NEVER, Observable, Subject, tap, shareReplay, startWith, switchMap, share,
+  ReplaySubject, timer
 } from 'rxjs';
-import { DefaultStorage } from './default-storage';
-import { RequestTimes } from './request-times';
+import {DefaultStorage} from './default-storage';
+import {RequestTimes} from './request-times';
 
 type HttpRequestCacheMethod = (...args: any[]) => Observable<any>;
 
 export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?: (obj: T, ...args: any[]) => HttpCacheOptions) => {
-  return (
-    target: T,
-    methodName: string,
-    descriptor: TypedPropertyDescriptor<HttpRequestCacheMethod>,
-  ): TypedPropertyDescriptor<HttpRequestCacheMethod> => {
+  return (target: T, methodName: string, descriptor: TypedPropertyDescriptor<HttpRequestCacheMethod>): TypedPropertyDescriptor<HttpRequestCacheMethod> => {
     if (!(descriptor?.value instanceof Function)) {
-      throw Error(
-        `'@HttpRequestCache' can be applied only to the class method which returns an Observable`,
-      );
+      throw Error(`'@HttpRequestCache' can be applied only to the class method which returns an Observable`);
     }
 
     const cacheKeyPrefix = `${target.constructor.name}_${methodName}`;
     const originalMethod = descriptor.value;
-
     const working: Record<string, boolean> = {};
     const subscribers: Record<string, number> = {};
-    const removeTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
-    descriptor.value = function (...args: any[]): Observable<any> {
+    descriptor.value = function(...args: any[]): Observable<any> {
       const options = optionsHandler?.call(this as T, this as T, ...args);
 
       if (!options?.storage && !(target as any)._____storage_____) {
@@ -50,18 +34,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
 
       const key = `${cacheKeyPrefix}_${JSON.stringify(args)}`;
 
-      // отменяем запланированное удаление
-      if (removeTimers[key]) {
-        clearTimeout(removeTimers[key]);
-        delete removeTimers[key];
-      }
-
-      let ttl:
-        | {
-        requestTime: number;
-        subject: Subject<void>;
-      }
-        | undefined;
+      let ttl: {requestTime: number, subject: Subject<void>} = undefined as any;
 
       if (options?.ttl) {
         ttl = (target as any)._____ttl_storage_____.getItem(key);
@@ -81,8 +54,8 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
       }
 
       const refreshOn = merge(
-        options?.refreshOn ?? (NEVER as Observable<unknown>),
-        ttl?.subject ?? (NEVER as Observable<unknown>),
+        options?.refreshOn ?? NEVER as Observable<unknown>,
+         ttl?.subject ?? NEVER as Observable<unknown>,
       );
 
       let observable = storage.getItem(key);
@@ -105,35 +78,22 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
           filter(() => !working[key]),
           finalize(() => {
             subscribers[key]--;
-
-            if (subscribers[key] <= 0) {
-              delete subscribers[key];
-
-              if (options?.refCount) {
-                const unset = () => {
-                  storage.deleteItem(key);
-                  (target as any)._____ttl_storage_____?.deleteItem(key);
-
-                  delete removeTimers[key];
-                };
-
-                if (options.refCountDelay == null) {
-                  unset();
-                } else {
-                  removeTimers[key] = setTimeout(unset, options.refCountDelay);
-                }
-              }
+            if (subscribers[key] <= 0 && options?.refCount) {
+              storage.deleteItem(key);
+              (target as any)._____ttl_storage_____?.deleteItem(key);
             }
-          }),
+          })
         );
-
         storage.setItem(key, observable);
 
         if (options?.windowTime) {
-          setTimeout(() => {
-            storage.deleteItem(key);
-            (target as any)._____ttl_storage_____?.deleteItem(key);
-          }, options.windowTime);
+          setTimeout(
+            () => {
+              storage.deleteItem(key);
+              (target as any)._____ttl_storage_____?.deleteItem(key);
+            },
+            options.windowTime,
+          );
         }
       }
 
@@ -143,5 +103,6 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
     };
 
     return descriptor;
-  };
-};
+  }
+}
+
