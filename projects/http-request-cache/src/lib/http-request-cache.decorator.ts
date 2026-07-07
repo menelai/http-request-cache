@@ -18,6 +18,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
     const originalMethod = descriptor.value;
     const working: Record<string, boolean> = {};
     const subscribers: Record<string, number> = {};
+    const removeTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
     descriptor.value = function(...args: any[]): Observable<any> {
       const options = optionsHandler?.call(this as T, this as T, ...args);
@@ -34,6 +35,12 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
 
       const key = `${cacheKeyPrefix}_${JSON.stringify(args)}`;
 
+      // отменяем запланированное удаление
+      if (removeTimers[key]) {
+        clearTimeout(removeTimers[key]);
+        delete removeTimers[key];
+      }
+
       let ttl: {requestTime: number, subject: Subject<void>} = undefined as any;
 
       if (options?.ttl) {
@@ -42,7 +49,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
         if (!ttl) {
           ttl = {
             requestTime: Date.now(),
-            subject: new Subject<void>(),
+            subject: new Subject(),
           };
         } else if (ttl.requestTime + options.ttl <= Date.now()) {
           working[key] = true;
@@ -78,9 +85,24 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
           filter(() => !working[key]),
           finalize(() => {
             subscribers[key]--;
-            if (subscribers[key] <= 0 && options?.refCount) {
-              storage.deleteItem(key);
-              (target as any)._____ttl_storage_____?.deleteItem(key);
+
+            if (subscribers[key] <= 0) {
+              delete subscribers[key];
+
+              if (options?.refCount) {
+                const unset = () => {
+                  storage.deleteItem(key);
+                  (target as any)._____ttl_storage_____?.deleteItem(key);
+
+                  delete removeTimers[key];
+                };
+
+                if (options.refCountDelay == null) {
+                  unset();
+                } else {
+                  removeTimers[key] = setTimeout(unset, options.refCountDelay);
+                }
+              }
             }
           })
         );
@@ -97,7 +119,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
         }
       }
 
-      subscribers[key] = (subscribers[key] ?? 0) + 1;
+      subscribers[key]++;
 
       return observable;
     };
