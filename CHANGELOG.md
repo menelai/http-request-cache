@@ -1,3 +1,11 @@
+## [1.3.1](https://github.com/menelai/http-request-cache/compare/v1.3.0...v1.3.1) (2026-07-07)
+
+
+### Bug Fixes
+
+* excl ([966ce9c](https://github.com/menelai/http-request-cache/commit/966ce9cd06bc3605911b2821ef554f900cd12b10))
+* share ([eb0c21c](https://github.com/menelai/http-request-cache/commit/eb0c21c742f04c50bfee81f2e9873e2953463983))
+
 # [1.3.0](https://github.com/menelai/http-request-cache/compare/v1.2.5...v1.3.0) (2026-07-07)
 
 
