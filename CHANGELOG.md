@@ -1,3 +1,11 @@
+## [1.3.4](https://github.com/menelai/http-request-cache/compare/v1.3.3...v1.3.4) (2026-07-07)
+
+
+### Bug Fixes
+
+* resetOnRefCountZero ([baca404](https://github.com/menelai/http-request-cache/commit/baca40459e36e92836514a5a47593465cbc7cabe))
+* timer ([449e895](https://github.com/menelai/http-request-cache/commit/449e895641ea3e79abe8506446baa5ba32190985))
+
 ## [1.3.3](https://github.com/menelai/http-request-cache/compare/v1.3.2...v1.3.3) (2026-07-07)
 
 
