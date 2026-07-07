@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/menelai/http-request-cache/compare/v1.2.5...v1.3.0) (2026-07-07)
+
+
+### Features
+
+* add refCountDelay ([aebe71a](https://github.com/menelai/http-request-cache/commit/aebe71aa0b8e6bccbe8210bf927d8487e169af7d))
+
 ## [1.2.5](https://github.com/menelai/http-request-cache/compare/v1.2.4...v1.2.5) (2026-01-30)
 
 
