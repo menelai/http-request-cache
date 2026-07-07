@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/menelai/http-request-cache/compare/v1.3.2...v1.3.3) (2026-07-07)
+
+
+### Bug Fixes
+
+* timer ([24a9ea1](https://github.com/menelai/http-request-cache/commit/24a9ea1b9205832826baccb53136743970258147))
+
 ## [1.3.2](https://github.com/menelai/http-request-cache/compare/v1.3.1...v1.3.2) (2026-07-07)
 
 
