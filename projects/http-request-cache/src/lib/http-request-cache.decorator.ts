@@ -1,22 +1,41 @@
-import {HttpCacheOptions} from './http-cache-options';
-import {filter, finalize, merge, NEVER, Observable, Subject, tap, shareReplay, startWith, switchMap} from 'rxjs';
-import {DefaultStorage} from './default-storage';
-import {RequestTimes} from './request-times';
+import { HttpCacheOptions } from './http-cache-options';
+import {
+  filter,
+  finalize,
+  merge,
+  NEVER,
+  Observable,
+  Subject,
+  tap,
+  shareReplay,
+  startWith,
+  switchMap,
+} from 'rxjs';
+import { DefaultStorage } from './default-storage';
+import { RequestTimes } from './request-times';
 
 type HttpRequestCacheMethod = (...args: any[]) => Observable<any>;
 
 export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?: (obj: T, ...args: any[]) => HttpCacheOptions) => {
-  return (target: T, methodName: string, descriptor: TypedPropertyDescriptor<HttpRequestCacheMethod>): TypedPropertyDescriptor<HttpRequestCacheMethod> => {
+  return (
+    target: T,
+    methodName: string,
+    descriptor: TypedPropertyDescriptor<HttpRequestCacheMethod>,
+  ): TypedPropertyDescriptor<HttpRequestCacheMethod> => {
     if (!(descriptor?.value instanceof Function)) {
-      throw Error(`'@HttpRequestCache' can be applied only to the class method which returns an Observable`);
+      throw Error(
+        `'@HttpRequestCache' can be applied only to the class method which returns an Observable`,
+      );
     }
 
     const cacheKeyPrefix = `${target.constructor.name}_${methodName}`;
     const originalMethod = descriptor.value;
-    const working: Record<string, boolean> = {};
-    let subscribers = 0;
 
-    descriptor.value = function(...args: any[]): Observable<any> {
+    const working: Record<string, boolean> = {};
+    const subscribers: Record<string, number> = {};
+    const removeTimers: Record<string, ReturnType<typeof setTimeout>> = {};
+
+    descriptor.value = function (...args: any[]): Observable<any> {
       const options = optionsHandler?.call(this as T, this as T, ...args);
 
       if (!options?.storage && !(target as any)._____storage_____) {
@@ -31,7 +50,18 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
 
       const key = `${cacheKeyPrefix}_${JSON.stringify(args)}`;
 
-      let ttl: {requestTime: number, subject: Subject<void>} = undefined as any;
+      // отменяем запланированное удаление
+      if (removeTimers[key]) {
+        clearTimeout(removeTimers[key]);
+        delete removeTimers[key];
+      }
+
+      let ttl:
+        | {
+        requestTime: number;
+        subject: Subject<void>;
+      }
+        | undefined;
 
       if (options?.ttl) {
         ttl = (target as any)._____ttl_storage_____.getItem(key);
@@ -39,7 +69,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
         if (!ttl) {
           ttl = {
             requestTime: Date.now(),
-            subject: new Subject(),
+            subject: new Subject<void>(),
           };
         } else if (ttl.requestTime + options.ttl <= Date.now()) {
           working[key] = true;
@@ -51,8 +81,8 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
       }
 
       const refreshOn = merge(
-        options?.refreshOn ?? NEVER as Observable<unknown>,
-         ttl?.subject ?? NEVER as Observable<unknown>,
+        options?.refreshOn ?? (NEVER as Observable<unknown>),
+        ttl?.subject ?? (NEVER as Observable<unknown>),
       );
 
       let observable = storage.getItem(key);
@@ -68,36 +98,46 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
             bufferSize: 1,
             refCount: options?.refCount ?? false,
           }),
-          filter(() => {
-            return !working[key];
-          }),
+          filter(() => !working[key]),
           finalize(() => {
-            subscribers--;
-            if (subscribers === 0 && options?.refCount) {
-              storage.deleteItem(key);
-              (target as any)._____ttl_storage_____?.deleteItem(key);
+            subscribers[key]--;
+
+            if (subscribers[key] <= 0) {
+              delete subscribers[key];
+
+              if (options?.refCount) {
+                const unset = () => {
+                  storage.deleteItem(key);
+                  (target as any)._____ttl_storage_____?.deleteItem(key);
+
+                  delete removeTimers[key];
+                };
+
+                if (options.refCountDelay == null) {
+                  unset();
+                } else {
+                  removeTimers[key] = setTimeout(unset, options.refCountDelay);
+                }
+              }
             }
-          })
+          }),
         );
+
         storage.setItem(key, observable);
 
         if (options?.windowTime) {
-          setTimeout(
-            () => {
-              storage.deleteItem(key);
-              (target as any)._____ttl_storage_____?.deleteItem(key);
-            },
-            options.windowTime,
-          );
+          setTimeout(() => {
+            storage.deleteItem(key);
+            (target as any)._____ttl_storage_____?.deleteItem(key);
+          }, options.windowTime);
         }
       }
 
-      subscribers++;
+      subscribers[key] = (subscribers[key] ?? 0) + 1;
 
       return observable;
     };
 
     return descriptor;
-  }
-}
-
+  };
+};

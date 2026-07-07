@@ -3,6 +3,7 @@ import {HttpCacheStorage} from './http-cache-storage';
 
 export interface HttpCacheOptions {
   refCount?: boolean;
+  refCountDelay?: number;
   windowTime?: number;
   ttl?: number;
   storage?: HttpCacheStorage;
