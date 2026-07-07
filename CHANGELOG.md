@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/menelai/http-request-cache/compare/v1.3.1...v1.3.2) (2026-07-07)
+
+
+### Bug Fixes
+
+* unset ([77ef8b8](https://github.com/menelai/http-request-cache/commit/77ef8b804b5ff457a9b15e0e45edf77b97417573))
+
 ## [1.3.1](https://github.com/menelai/http-request-cache/compare/v1.3.0...v1.3.1) (2026-07-07)
 
 
