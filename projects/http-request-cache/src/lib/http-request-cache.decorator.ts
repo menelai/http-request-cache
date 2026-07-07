@@ -9,7 +9,7 @@ import {
   tap,
   shareReplay,
   startWith,
-  switchMap,
+  switchMap, share, ReplaySubject, timer,
 } from 'rxjs';
 import { DefaultStorage } from './default-storage';
 import { RequestTimes } from './request-times';
@@ -94,9 +94,13 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
           tap(() => {
             delete working[key];
           }),
-          shareReplay({
-            bufferSize: 1,
-            refCount: options?.refCount ?? false,
+          share({
+            connector: () => new ReplaySubject(1),
+            resetOnComplete: false,
+            resetOnError: true,
+            resetOnRefCountZero: options?.refCount && options.refCountDelay != null
+              ? () => timer(options.refCountDelay)
+              : false,
           }),
           filter(() => !working[key]),
           finalize(() => {
