@@ -1,3 +1,10 @@
+## [1.3.5](https://github.com/menelai/http-request-cache/compare/v1.3.4...v1.3.5) (2026-09-24)
+
+
+### Bug Fixes
+
+* **dec:** cache key, per-instance state and teardown ([73aef76](https://github.com/menelai/http-request-cache/commit/73aef76a00be7810f738c967296479623e7aaff3))
+
 ## [1.3.4](https://github.com/menelai/http-request-cache/compare/v1.3.3...v1.3.4) (2026-07-07)
 
 
