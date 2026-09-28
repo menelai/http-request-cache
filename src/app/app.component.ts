@@ -173,7 +173,7 @@ export class AppComponent {
   }
 
   async scenarioObjectArgs(): Promise<void> {
-    this.log.push('Сценарий 10: объектные аргументы. {a,b} -> {b,a} (порядок ключей). JSON.stringify даёт разные ключи -> 2 HTTP');
+    this.log.push('Сценарий 10: объектные аргументы. {a,b}, затем {b,a} (порядок ключей) и повтор {a,b} -> 1 HTTP (ключи канонизируются)');
     const a = this.subscribe('S10/O1', this.scenarios.byObject({a: 1, b: 2}));
     await this.wait(1200);
     const b = this.subscribe('S10/O2', this.scenarios.byObject({b: 2, a: 1}));
@@ -183,6 +183,6 @@ export class AppComponent {
     a.unsubscribe();
     b.unsubscribe();
     c.unsubscribe();
-    this.log.push('S10: готово. Obj. O3 должен быть из кэша (growth = 2 всего)');
+    this.log.push('S10: готово. O2 и O3 должны быть из кэша (growth = 1 всего)');
   }
 }

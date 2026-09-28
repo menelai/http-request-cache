@@ -19,6 +19,72 @@ import {RequestTimes} from './request-times';
 
 type HttpRequestCacheMethod = (...args: any[]) => Observable<any>;
 
+const serializeArg = (value: any): string => {
+  const seen = new WeakMap<object, string>();
+  let counter = 0;
+
+  const serialize = (v: any): string => {
+    if (v === null) {
+      return 'null';
+    }
+    const t = typeof v;
+
+    if (t === 'number' || t === 'boolean') {
+      return String(v);
+    }
+    if (t === 'bigint') {
+      return `${v}n`;
+    }
+    if (t === 'undefined' || t === 'symbol' || t === 'function') {
+      return 'undef';
+    }
+    if (t === 'string') {
+      return `str:${v}`;
+    }
+    if (t !== 'object') {
+      return `${t}:${String(v)}`;
+    }
+
+    if (v instanceof Date) {
+      return `date:${v.toISOString()}`;
+    }
+    if (v instanceof RegExp) {
+      return `regexp:${v.toString()}`;
+    }
+
+    const path = seen.get(v);
+    if (path !== undefined) {
+      return `circ:${path}`;
+    }
+    seen.set(v, `v${counter++}`);
+
+    let out: string;
+    if (v instanceof Map) {
+      out = `map:${serialize(Array.from(v.entries()))}`;
+    } else if (v instanceof Set) {
+      out = `set:${serialize(Array.from(v.values()))}`;
+    } else if (Array.isArray(v)) {
+      out = `[${v.map(serialize).join(',')}]`;
+    } else {
+      out = `{${Object.keys(v).sort().map((k: string): string => `${serialize(k)}:${serialize(v[k])}`).join(',')}}`;
+    }
+
+    seen.delete(v);
+    return out;
+  };
+
+  return serialize(value);
+};
+
+const hashArgs = (input: string): string => {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(36);
+};
+
 export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?: (obj: T, ...args: any[]) => HttpCacheOptions) => {
   return (
     target: T,
@@ -61,7 +127,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
         instanceId = `_${id}`;
       }
 
-      const key = `${cacheKeyPrefix}${instanceId}_${JSON.stringify(args)}`;
+      const key = `${cacheKeyPrefix}${instanceId}_${hashArgs(serializeArg(args))}`;
 
       // отменяем запланированное удаление
       if (removeTimers[key]) {
@@ -109,7 +175,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
             resetOnRefCountZero: !options?.refCount
               ? false
               : options.refCountDelay != null
-                ? () => timer(options.refCountDelay!)
+                ? (): Observable<number> => timer(options.refCountDelay!)
                 : true,
           }),
           filter(() => !working[key]),
@@ -120,7 +186,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
               delete subscribers[key];
 
               if (options?.refCount) {
-                const unset = () => {
+                const unset = (): void => {
                   storage.deleteItem(key);
                   self.___ttl_storage___?.deleteItem(key);
 
