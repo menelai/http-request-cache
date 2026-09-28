@@ -1,1 +1,35 @@
-l
+<h3>HTTP Request Cache — проверка сценариев</h3>
+<p>HTTP-запросы перехватываются фейковым перехватчиком (<code>FakeApiInterceptor</code>), сети нет. Каждый реальный вызов метода у <code>HttpClient</code> увеличивает счётчик и логируется. Ответ приходит с задержкой ~0.5с, общее для всех. Смотрите лог и счётчики.</p>
+
+<div class="controls">
+  <button (click)="scenarioSameArgs()">1. Одинаковые аргументы (2 подписки)</button>
+  <button (click)="scenarioDifferentArgs()">2. Разные аргументы</button>
+  <button (click)="scenarioRefresh()">3. refreshOn</button>
+  <button (click)="scenarioTtl()">4. ttl: 2-й подписчик после expiry</button>
+  <button (click)="scenarioRefCount()">5. refCount</button>
+  <button (click)="scenarioRefCountDelay()">6. refCount + refCountDelay</button>
+  <button (click)="scenarioWindowTime()">7. windowTime</button>
+  <button (click)="scenarioError()">8. Ошибка на сервере</button>
+  <button (click)="scenarioInstances()">9. Два инстанса класса</button>
+  <button (click)="scenarioObjectArgs()">10. Объектные аргументы</button>
+  <button class="reset" (click)="clearLog()">Очистить лог</button>
+</div>
+
+<h4>HTTP-запросы</h4>
+<table>
+  <tr>
+    <th>сценарий</th>
+    <th>url</th>
+    <th>кол-во</th>
+  </tr>
+  <tr *ngFor="let w of watched">
+    <td>{{w.label}}</td>
+    <td>{{w.url}}</td>
+    <td class="count">{{counter(w.url)}}</td>
+  </tr>
+</table>
+
+<h4>Лог</h4>
+<ul class="log">
+  <li *ngFor="let e of logs">{{e.time}} — {{e.text}}</li>
+</ul>
