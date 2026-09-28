@@ -1,3 +1,10 @@
+## [1.3.6](https://github.com/menelai/http-request-cache/compare/v1.3.5...v1.3.6) (2026-09-28)
+
+
+### Bug Fixes
+
+* revert ([23960f6](https://github.com/menelai/http-request-cache/commit/23960f66b333d52a046706d9241dfc49d6ce0588))
+
 ## [1.3.5](https://github.com/menelai/http-request-cache/compare/v1.3.4...v1.3.5) (2026-09-24)
 
 
