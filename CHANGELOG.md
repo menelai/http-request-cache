@@ -1,3 +1,12 @@
+## [1.3.7](https://github.com/menelai/http-request-cache/compare/v1.3.6...v1.3.7) (2026-09-28)
+
+
+### Bug Fixes
+
+* args serializer ([242948a](https://github.com/menelai/http-request-cache/commit/242948ae49188e6e574c3d159a3e1df16871af45))
+* cache in instance ([736dde3](https://github.com/menelai/http-request-cache/commit/736dde34e799a6d64c786f9948bf502b950e8c84))
+* subscriber number increment ([449b56e](https://github.com/menelai/http-request-cache/commit/449b56ef1ea0c5db4c26bcaa6d5f90246c9d257a))
+
 ## [1.3.6](https://github.com/menelai/http-request-cache/compare/v1.3.5...v1.3.6) (2026-09-28)
 
 
