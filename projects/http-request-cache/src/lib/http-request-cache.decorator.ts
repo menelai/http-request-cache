@@ -34,21 +34,34 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
     const working: Record<string, boolean> = {};
     const subscribers: Record<string, number> = {};
     const removeTimers: Record<string, ReturnType<typeof setTimeout>> = {};
+    const instanceIds = new WeakMap<object, number>();
+    let instanceIdCounter = 0;
 
     descriptor.value = function(...args: any[]): Observable<any> {
-      const options = optionsHandler?.call(this as T, this as T, ...args);
+      const self = (this as Record<string, any>) ?? target;
+      const options = optionsHandler?.call(self as T, self as T, ...args);
 
-      if (!options?.storage && !(target as any)._____storage_____) {
-        (target as any)._____storage_____ = new DefaultStorage();
+      if (!options?.storage && !self.___storage___) {
+        self.___storage___ = new DefaultStorage();
       }
 
-      if (options?.ttl && !(target as any)._____ttl_storage_____) {
-        (target as any)._____ttl_storage_____ = new RequestTimes();
+      if (options?.ttl && !self.___ttl_storage___) {
+        self.___ttl_storage___ = new RequestTimes();
       }
 
-      const storage = options?.storage ?? (target as any)._____storage_____;
+      const storage = options?.storage ?? self.___storage___;
 
-      const key = `${cacheKeyPrefix}_${JSON.stringify(args)}`;
+      let instanceId = '';
+      if (!options?.storage) {
+        let id = instanceIds.get(self);
+        if (id === undefined) {
+          id = ++instanceIdCounter;
+          instanceIds.set(self, id);
+        }
+        instanceId = `_${id}`;
+      }
+
+      const key = `${cacheKeyPrefix}${instanceId}_${JSON.stringify(args)}`;
 
       // отменяем запланированное удаление
       if (removeTimers[key]) {
@@ -59,7 +72,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
       let ttl: {requestTime: number, subject: Subject<void>} = undefined as any;
 
       if (options?.ttl) {
-        ttl = (target as any)._____ttl_storage_____.getItem(key);
+        ttl = self.___ttl_storage___.getItem(key);
 
         if (!ttl) {
           ttl = {
@@ -72,7 +85,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
           ttl.subject.next();
         }
 
-        (target as any)._____ttl_storage_____.setItem(key, ttl);
+        self.___ttl_storage___.setItem(key, ttl);
       }
 
       const refreshOn = merge(
@@ -109,7 +122,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
               if (options?.refCount) {
                 const unset = () => {
                   storage.deleteItem(key);
-                  (target as any)._____ttl_storage_____?.deleteItem(key);
+                  self.___ttl_storage___?.deleteItem(key);
 
                   delete removeTimers[key];
                 };
@@ -129,7 +142,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
           setTimeout(
             () => {
               storage.deleteItem(key);
-              (target as any)._____ttl_storage_____?.deleteItem(key);
+              self.___ttl_storage___?.deleteItem(key);
             },
             options.windowTime,
           );

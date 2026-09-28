@@ -157,7 +157,7 @@ export class AppComponent {
   }
 
   async scenarioInstances(): Promise<void> {
-    this.log.push('Сценарий 9: два инстанса с одинаковыми аргументами. Кэш живёт на прототипе -> 1 HTTP');
+    this.log.push('Сценарий 9: два инстанса с одинаковыми аргументами. Кэш привязан к инстансу -> 2 HTTP');
     const a = new ScenariosService(this.http);
     const b = new ScenariosService(this.http);
     const sa = this.subscribe('S9/A', a.base(7));
@@ -165,7 +165,7 @@ export class AppComponent {
     await this.wait(1200);
     sa.unsubscribe();
     sb.unsubscribe();
-    this.log.push('S9: готово. base/7 должен быть 1');
+    this.log.push('S9: готово. base/7 должен быть 2 (по одному на инстанс)');
   }
 
   async scenarioObjectArgs(): Promise<void> {
