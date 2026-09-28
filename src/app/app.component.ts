@@ -117,18 +117,22 @@ export class AppComponent {
   }
 
   async scenarioRefCountDelay(): Promise<void> {
-    this.log.push('Сценарий 6: refCount=true, refCountDelay=3s. отписка в 1s, R2 в 2.5s (кэш, HTTP не растёт), R3 в 6.5s (новый HTTP)');
+    this.log.push('Сценарий 6: refCount=true, refCountDelay=3s. D(0s) -> отписка(1s), D2(2.5s — кэш в пределах delay), отписка D2(3.5s), D3(8s — простой > 3s -> новый HTTP)');
     const s = this.subscribe('S6/D', this.scenarios.withRefCountDelay(5));
     await this.wait(1000);
     s.unsubscribe();
+    this.log.push('S6: D отписался (~1s), запущен refCountDelay 3s');
     await this.wait(1500);
     const s2 = this.subscribe('S6/D2', this.scenarios.withRefCountDelay(5));
-    await this.wait(4000);
+    await this.wait(1000);
+    this.log.push('S6: D2 подписался в пределах delay -> кэш, HTTP не растёт');
+    s2.unsubscribe();
+    this.log.push('S6: D2 отписался (~3.5s), снова запущен refCountDelay 3s');
+    await this.wait(4500);
     const s3 = this.subscribe('S6/D3', this.scenarios.withRefCountDelay(5));
     await this.wait(1200);
-    s2.unsubscribe();
     s3.unsubscribe();
-    this.log.push('S6: готово. HTTP должен вырасти только при D3');
+    this.log.push('S6: готово. D3 после простоя > 3s -> новый HTTP (value #2)');
   }
 
   async scenarioWindowTime(): Promise<void> {

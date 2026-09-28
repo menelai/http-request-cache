@@ -149,7 +149,7 @@ export const HttpRequestCache = <T extends Record<string, any>>(optionsHandler?:
         }
       }
 
-      subscribers[key]++;
+      subscribers[key] = (subscribers[key] ?? 0) + 1;
 
       return observable;
     };
